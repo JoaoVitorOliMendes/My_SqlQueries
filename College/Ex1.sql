@@ -10,6 +10,7 @@
 --select * from empregado where (to_char(admissao, 'YYYYMMDD')) between '20120510' and '20120530'
 --select * from dependente where (to_char(dt_nascimento, 'YYYY')) = '2004';
 --select * from funcionario where nome_funcionario like 'M%c_';
+--select empregado.nome_empregado from empregado where empregado.salario = (select min(empregado.salario) from empregado)
 select * 
 from funcionario
     join departamento
