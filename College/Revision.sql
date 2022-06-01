@@ -70,8 +70,75 @@ cod_prova number(3) constraint pk_prova primary key,
 data_prova date,
 valor_prova number(4,2),
 cod_professor number(3) constraint fk_professor
-references professor
+references professor(cod_professor)
 );
 
 --3.
---b
+--d
+
+--4.
+--a)
+select login_usuario
+from usuario, conexao
+where usuario.cod_usuario = conexao.cod_usuario
+group by usuario.login_usuario
+having count(conexao.cod_cnx) =
+(
+    select max(count(cod_cnx))
+    from conexao
+    group by cod_usuario
+);
+
+--b)
+select to_char(data_cnx, 'DD/MM/YYYY')
+from conexao
+group by to_char(data_cnx, 'DD/MM/YYYY')
+having count(cod_cnx) =
+(
+    select min(count(cod_cnx))
+    from conexao
+    group by to_char(data_cnx, 'DD/MM/YYYY')
+);
+
+--c)
+select conexao.cod_cnx
+from conexao, comandos
+where conexao.cod_cnx = comandos.cod_cnx
+group by conexao.cod_cnx
+having count(cod_cmd) =
+(
+    select max(count(cod_cnx))
+    from comandos
+    group by cod_cnx
+);
+
+--d)
+select to_char(data_cmd, 'HH24')
+from comandos
+group by to_char(data_cmd, 'HH24')
+having count(cod_cmd) =
+(
+    select max(count(cod_cmd))
+    from comandos
+    group by to_char(data_cmd, 'HH24')
+);
+
+--e)
+select login_usuario
+from usuario left join conexao
+on usuario.cod_usuario = conexao.cod_usuario
+left join comandos
+on conexao.cod_cnx = comandos.cod_cnx
+group by login_usuario
+having count(cod_cmd) =
+(
+    select min(count(cod_cmd))
+    from usuario left join conexao
+    on usuario.cod_usuario = conexao.cod_usuario
+    left join comandos
+    on conexao.cod_cnx = comandos.cod_cnx
+    group by login_usuario
+);
+
+--6
+--e
