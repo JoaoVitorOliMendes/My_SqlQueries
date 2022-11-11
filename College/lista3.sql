@@ -47,3 +47,19 @@ end;
 /
 
 call PR_MAIOR_VENDA();
+
+create or replace procedure pr_votos(valor varchar2)
+is
+cursor cr_voto(valor varchar2) is select voto.numero
+                                    from voto, candidato
+                                    where voto.numero = candidato.numero
+                                    and lower(candidato.nome_candidato) = lower(valor);
+total number;
+begin
+    total := 0;
+    for x in cr_voto(valor) loop
+        total := total + 1;
+    end loop;
+    DBMS_OUTPUT.PUT_LINE(valor||' - '||total||' votos');
+end;
+/
