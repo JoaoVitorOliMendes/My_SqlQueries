@@ -1,0 +1,54 @@
+--1. B) 2 FN
+
+--2. A) Somente a I é verdadeira
+
+--3. C) Existem duas afirmativas verdadeiras
+
+--create table USUARIO(COD_USUARIO NUMBER, LOGIN_USUARIO VARCHAR2(30), SENHA_USUARIO VARCHAR2(30));
+--create table CONEXAO(COD_CNX NUMBER, DATA_CNX DATE, COD_USUARIO NUMBER);
+--create table COMANDOS(COD_CMD NUMBER, DATA_CMD DATE, COD_USUARIO NUMBER, CORPO_CMD VARCHAR2(4000), COD_CNX NUMBER);
+
+--4.
+create or replace procedure PR_QDE_CMD
+as
+cursor cr_conexao is
+    select to_char('DD/MM/YYYY', DATA_CNX) as data, COD_CNX, COD_USUARIO from conexao;
+cursor cr_usuario(cod_var number) is
+    select COD_USUARIO, NOME_USUARIO from usuario where COD_USUARIO = cod_var;
+cursor cr_cmd(cod_usu number, cod_con number) is
+    select COD_CMD from COMANDOS where COD_USUARIO = cod_usu and COD_CNX = cod_con;
+cont number;
+begin
+    for x in cr_conexao loop
+        dbms_output.put_line('DATA: '||x.data);
+        for y in cr_usuario(x.COD_USUARIO) loop
+            cont := 0;
+            for z in cr_cmd(x.COD_USUARIO, x.COD_CNX) loop
+                cont := cont + 1;
+            end loop;
+            dbms_output.put_line('\t'||y.NOME_USUARIO||'\t'||cont);
+        end loop;
+    end loop;
+end;
+/
+
+create or replace procedure PR_HIST_CMD(nome_usr varchar2)
+as
+cursor cr_conexao is
+    select to_char('DD/MM/YYYY', DATA_CNX) as data, COD_CNX, COD_USUARIO from conexao order by DATA_CNX desc;
+cursor cr_cmd(cod_usu number, cod_con number) is
+    select COD_CMD, CORPO_CMD, to_char('HH24:MI:SS', DATA_CMD) as hora from COMANDOS where COD_USUARIO = cod_usu and COD_CNX = cod_con;
+idx_cod_usr number;
+begin
+    select cod_usuario into idx_cod_usr
+    from usuario
+    where lower(NOME_USUARIO) = lower(nome_usr);
+    
+    for x in cr_conexao loop
+        dbms_output.put_line('DATA: '||x.data);
+        for y in cr_cmd(idx_cod_usr, x.COD_CNX) loop
+            dbms_output.put_line(y.hora||' '||y.CORPO_CMD);
+        end loop;
+    end loop;
+end;
+/
